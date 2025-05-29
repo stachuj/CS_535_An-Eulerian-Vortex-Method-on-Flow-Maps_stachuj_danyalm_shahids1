@@ -55,7 +55,7 @@ If you find our paper or code helpful, consider citing:
   journal={ACM Transactions on Graphics (TOG)},
   volume={43},
   number={6},
-  pages={1--13},
+  pages={1--14},
   year={2024},
   publisher={ACM New York, NY, USA}
 }
