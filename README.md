@@ -1,23 +1,11 @@
-# [TOG (SIGGRAPH Asia 2024)] An Eulerian Vortex Method on Flow Maps
-
-by [Sinan Wang](https://sinanw.com), [Yitong Deng](https://yitongdeng.github.io/), [Molin Deng](https://molin7.vercel.app), [Hong-Xing Yu](https://kovenyu.com/), [Junwei Zhou](https://zjw49246.github.io/website/), [Duowen Chen](https://cdwj.github.io), [Taku Komura](https://hku-cg.github.io/author/taku-komura/), [Jiajun Wu](https://jiajunwu.com/), and [Bo Zhu](https://faculty.cc.gatech.edu/~bozhu/)
-
-Our paper and video results can be found at our [project website](https://evm.sinanw.com/).
-
-This work has been awarded the **[Replicability Stamp](http://www.replicabilitystamp.org#https-github-com-pfm-gatech-an-eulerian-vortex-method-on-flow-maps-git)**.
-[![](https://www.replicabilitystamp.org/logo/Reproducibility-small.png)](http://www.replicabilitystamp.org#https-github-com-pfm-gatech-an-eulerian-vortex-method-on-flow-maps-git)
+# CS535 An Eulerian Vortex Method on Flow Maps
+This is a fork created for a CS535 class project at SUNY Polytechnic Institute  
+by Justin Stachurski, Mian Danyal, Shazman Shahid
 
 ## Installation
-Our code is tested on Windows 11 with CUDA 12.3, Python 3.10.9, and Taichi 1.6.0.
+Code is tested on Windows 11 with CUDA 13.1, Python 3.13.3, and Taichi 1.7.4, using Visual Studio Code.
 
-To set up the environment, first create a conda environment:
-
-```bash
-conda create -n "evm_env" python=3.10.9 ipython
-conda activate evm_env
-```
-
-Then, install the requirements with:
+Install the requirements with:
 
 ```bash
 pip install -r requirements.txt
@@ -45,9 +33,17 @@ Hyperparameters can be tuned by changing the values in the file `hyperparameters
 ## Visualization
 The results will be stored in `logs/[exp_name]/vtks`. We recommend using ParaView to load these `.vti` files as a sequence and visualize them by selecting **Volume** in the Representation drop-down menu.
 
-## Bibliography
-If you find our paper or code helpful, consider citing:
 
+## Bibliography
+[TOG (SIGGRAPH Asia 2024)] An Eulerian Vortex Method on Flow Maps
+by [Sinan Wang](https://sinanw.com), [Yitong Deng](https://yitongdeng.github.io/), [Molin Deng](https://molin7.vercel.app), [Hong-Xing Yu](https://kovenyu.com/), [Junwei Zhou](https://zjw49246.github.io/website/), [Duowen Chen](https://cdwj.github.io), [Taku Komura](https://hku-cg.github.io/author/taku-komura/), [Jiajun Wu](https://jiajunwu.com/), and [Bo Zhu](https://faculty.cc.gatech.edu/~bozhu/)
+
+The paper and video results can be found at [project website](https://evm.sinanw.com/).
+
+This work has been awarded the **[Replicability Stamp](http://www.replicabilitystamp.org#https-github-com-pfm-gatech-an-eulerian-vortex-method-on-flow-maps-git)**.
+[![](https://www.replicabilitystamp.org/logo/Reproducibility-small.png)](http://www.replicabilitystamp.org#https-github-com-pfm-gatech-an-eulerian-vortex-method-on-flow-maps-git)
+
+If you find our paper or code helpful, consider citing:
 ```bibtex
 @article{wang2024eulerian,
   title={An Eulerian Vortex Method on Flow Maps},
