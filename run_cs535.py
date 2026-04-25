@@ -144,10 +144,10 @@ def backtrack_psi_grid(curr_step):
         RK4_grid(psi_z, F_z, step)
 
 def RK4_grid(psi_x, T_x, step):
-    copy_to(u_x_buffer[step], tmp_u_x)
-    copy_to(u_y_buffer[step], tmp_u_y)
-    copy_to(u_z_buffer[step], tmp_u_z)
-    RK4_grid_graduT_psiF(psi_x, T_x, tmp_u_x, tmp_u_y, tmp_u_z, dts[step].item())
+    #copy_to(u_x_buffer[step], tmp_u_x)
+    #copy_to(u_y_buffer[step], tmp_u_y)
+    #copy_to(u_z_buffer[step], tmp_u_z)
+    RK4_grid_graduT_psiF(psi_x, T_x, u_x_buffer[step], u_y_buffer[step], u_z_buffer[step], dts[step].item())
 
 def march_phi_grid(curr_step):
     RK4_grid_graduT_phiT(phi_x, T_x, u_x, u_y, u_z, dts[curr_step].item())
