@@ -205,9 +205,9 @@ def RK2_grid_graduT_psiF(
         #u4, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x3, dx)
         #dT_x_dt4 = T_x3 @ grad_u_at_psi  # time derivative of T
         # final advance
-        psi_x[I] = psi_x[I] - dt * 1.0 / 6 * (u1 + 2 * u2)
-        T_x[I] = T_x[I] + dt * 1.0 / 6 * (
-            dT_x_dt1 + 2 * dT_x_dt2
+        psi_x[I] = psi_x[I] - dt * (u2)
+        T_x[I] = T_x[I] + dt * (
+            dT_x_dt2
         )  # advance full
 
 
@@ -237,7 +237,7 @@ def RK2_grid_graduT_phiT(
         #T_x2 = T_x[I] - 0.5 * dt * dT_x_dt2
         # third
         #u3, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x2, dx)
-        #dT_x_dt3 = T_x2 @ grad_u_at_psi # time derivative of T
+        #dT_x_dt3 = T_x2 @ grad_u_at_psi # time derivative of Tp
         # prepare fourth
         #psi_x3 = psi_x[I] + 1.0 * dt * u3
         #T_x3 = T_x[I] - 1.0 * dt * dT_x_dt3  # advance 1.0
@@ -245,9 +245,9 @@ def RK2_grid_graduT_phiT(
         #u4, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x3, dx)
         #dT_x_dt4 = T_x3 @ grad_u_at_psi  # time derivative of T
         # final advance
-        psi_x[I] = psi_x[I] + dt * 1.0 / 6 * (u1 + 2 * u2)
-        T_x[I] = T_x[I] - dt * 1.0 / 6 * (
-            dT_x_dt1 + 2 * dT_x_dt2
+        psi_x[I] = psi_x[I] + dt * (u2)
+        T_x[I] = T_x[I] - dt * (
+            dT_x_dt2
         )  # advance full
 
 @ti.kernel
