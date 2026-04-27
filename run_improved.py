@@ -14,7 +14,7 @@ v_b_w = 0.
 w_a_w = 0.
 w_c_w = 0.
 
-ti.init(arch=ti.cuda, device_memory_GB=8.0, debug=False)
+ti.init(arch=ti.cuda, debug=False) # removed device memory since it ran out if i put 8gb
 boundary_mask = ti.field(ti.i32, shape=(res_x, res_y, res_z))
 boundary_vel = ti.Vector.field(3, ti.f32, shape=(res_x, res_y, res_z))
 boundary_types_1 = ti.Matrix(
@@ -135,9 +135,9 @@ def reset_to_identity(
 
 def backtrack_psi_grid(curr_step):
     reset_to_identity(psi_x, psi_y, psi_z, F_x, F_y, F_z)
-    RK4_grid_graduT_psiF(psi_x, F_x, u_x, u_y, u_z, dts[curr_step].item())
-    RK4_grid_graduT_psiF(psi_y, F_y, u_x, u_y, u_z, dts[curr_step].item())
-    RK4_grid_graduT_psiF(psi_z, F_z, u_x, u_y, u_z, dts[curr_step].item())
+    RK2_grid_graduT_psiF(psi_x, F_x, u_x, u_y, u_z, dts[curr_step].item())
+    RK2_grid_graduT_psiF(psi_y, F_y, u_x, u_y, u_z, dts[curr_step].item())
+    RK2_grid_graduT_psiF(psi_z, F_z, u_x, u_y, u_z, dts[curr_step].item())
     for step in reversed(range(curr_step)):
         RK4_grid(psi_x, F_x, step)
         RK4_grid(psi_y, F_y, step)
@@ -147,12 +147,12 @@ def RK4_grid(psi_x, T_x, step):
     copy_to(u_x_buffer[step], tmp_u_x)
     copy_to(u_y_buffer[step], tmp_u_y)
     copy_to(u_z_buffer[step], tmp_u_z)
-    RK4_grid_graduT_psiF(psi_x, T_x, tmp_u_x, tmp_u_y, tmp_u_z, dts[step].item())
+    RK2_grid_graduT_psiF(psi_x, T_x, tmp_u_x, tmp_u_y, tmp_u_z, dts[step].item())
 
 def march_phi_grid(curr_step):
-    RK4_grid_graduT_phiT(phi_x, T_x, u_x, u_y, u_z, dts[curr_step].item())
-    RK4_grid_graduT_phiT(phi_y, T_y, u_x, u_y, u_z, dts[curr_step].item())
-    RK4_grid_graduT_phiT(phi_z, T_z, u_x, u_y, u_z, dts[curr_step].item())
+    RK2_grid_graduT_phiT(phi_x, T_x, u_x, u_y, u_z, dts[curr_step].item())
+    RK2_grid_graduT_phiT(phi_y, T_y, u_x, u_y, u_z, dts[curr_step].item())
+    RK2_grid_graduT_phiT(phi_z, T_z, u_x, u_y, u_z, dts[curr_step].item())
 
 @ti.func
 def interp_u_MAC_grad(u_x, u_y, u_z, p, dx):
@@ -172,7 +172,7 @@ def interp_w_MAC(w_x, w_y, w_z, p, dx):
 
 
 @ti.kernel
-def RK4_grid_graduT_psiF(
+def RK2_grid_graduT_psiF(
     psi_x: ti.template(),
     T_x: ti.template(),
     u_x0: ti.template(),
@@ -180,39 +180,21 @@ def RK4_grid_graduT_psiF(
     u_z0: ti.template(),
     dt: ti.f32,
 ):
-
-    # neg_dt = -1 * dt  # travel back in time
     for I in ti.grouped(psi_x):
-        # first
-        u1, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x[I], dx)
-        dT_x_dt1 = T_x[I] @ grad_u_at_psi  # time derivative of T
-        # prepare second
-        psi_x1 = psi_x[I] - 0.5 * dt * u1  # advance 0.5 steps
-        T_x1 = T_x[I] + 0.5 * dt * dT_x_dt1
-        # second
-        u2, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x1, dx)
-        dT_x_dt2 = T_x1 @ grad_u_at_psi  # time derivative of T
-        # prepare third
-        psi_x2 = psi_x[I] - 0.5 * dt * u2  # advance 0.5 again
-        T_x2 = T_x[I] + 0.5 * dt * dT_x_dt2
-        # third
-        u3, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x2, dx)
-        dT_x_dt3 = T_x2 @ grad_u_at_psi # time derivative of T
-        # prepare fourth
-        psi_x3 = psi_x[I] - 1.0 * dt * u3
-        T_x3 = T_x[I] + 1.0 * dt * dT_x_dt3  # advance 1.0
-        # fourth
-        u4, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x3, dx)
-        dT_x_dt4 = T_x3 @ grad_u_at_psi  # time derivative of T
-        # final advance
-        psi_x[I] = psi_x[I] - dt * 1.0 / 6 * (u1 + 2 * u2 + 2 * u3 + u4)
-        T_x[I] = T_x[I] + dt * 1.0 / 6 * (
-            dT_x_dt1 + 2 * dT_x_dt2 + 2 * dT_x_dt3 + dT_x_dt4
-        )  # advance full
+
+        u1, grad_u1 = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x[I], dx)
+
+        psi_mid = psi_x[I] - 0.5 * dt * u1
+        T_mid = T_x[I] + 0.5 * dt * (T_x[I] @ grad_u1)
+
+        u2, grad_u2 = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_mid, dx)
+
+        psi_x[I] = psi_x[I] - dt * u2
+        T_x[I] = T_x[I] + dt * (T_mid @ grad_u2)
 
 
 @ti.kernel
-def RK4_grid_graduT_phiT(
+def RK2_grid_graduT_phiT(
     psi_x: ti.template(),
     T_x: ti.template(),
     u_x0: ti.template(),
@@ -220,35 +202,17 @@ def RK4_grid_graduT_phiT(
     u_z0: ti.template(),
     dt: ti.f32,
 ):
-
-    # neg_dt = -1 * dt  # travel back in time
     for I in ti.grouped(psi_x):
-        # first
-        u1, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x[I], dx)
-        dT_x_dt1 = T_x[I] @ grad_u_at_psi  # time derivative of T
-        # prepare second
-        psi_x1 = psi_x[I] + 0.5 * dt * u1  # advance 0.5 steps
-        T_x1 = T_x[I] - 0.5 * dt * dT_x_dt1
-        # second
-        u2, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x1, dx)
-        dT_x_dt2 = T_x1 @ grad_u_at_psi  # time derivative of T
-        # prepare third
-        psi_x2 = psi_x[I] + 0.5 * dt * u2  # advance 0.5 again
-        T_x2 = T_x[I] - 0.5 * dt * dT_x_dt2
-        # third
-        u3, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x2, dx)
-        dT_x_dt3 = T_x2 @ grad_u_at_psi # time derivative of T
-        # prepare fourth
-        psi_x3 = psi_x[I] + 1.0 * dt * u3
-        T_x3 = T_x[I] - 1.0 * dt * dT_x_dt3  # advance 1.0
-        # fourth
-        u4, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x3, dx)
-        dT_x_dt4 = T_x3 @ grad_u_at_psi  # time derivative of T
-        # final advance
-        psi_x[I] = psi_x[I] + dt * 1.0 / 6 * (u1 + 2 * u2 + 2 * u3 + u4)
-        T_x[I] = T_x[I] - dt * 1.0 / 6 * (
-            dT_x_dt1 + 2 * dT_x_dt2 + 2 * dT_x_dt3 + dT_x_dt4
-        )  # advance full
+
+        u1, grad_u1 = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x[I], dx)
+
+        psi_mid = psi_x[I] + 0.5 * dt * u1
+        T_mid = T_x[I] - 0.5 * dt * (T_x[I] @ grad_u1)
+
+        u2, grad_u2 = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_mid, dx)
+
+        psi_x[I] = psi_x[I] + dt * u2
+        T_x[I] = T_x[I] - dt * (T_mid @ grad_u2)
 
 @ti.kernel
 def advect_w_notrans(
@@ -349,9 +313,9 @@ def main():
         # start midpoint
         reset_to_identity(psi_x, psi_y, psi_z, F_x, F_y, F_z)
 
-        RK4_grid_graduT_psiF(psi_x, F_x, u_x, u_y, u_z, 0.5 * curr_dt)
-        RK4_grid_graduT_psiF(psi_y, F_y, u_x, u_y, u_z, 0.5 * curr_dt)
-        RK4_grid_graduT_psiF(psi_z, F_z, u_x, u_y, u_z, 0.5 * curr_dt)
+        RK2_grid_graduT_psiF(psi_x, F_x, u_x, u_y, u_z, 0.5 * curr_dt)
+        RK2_grid_graduT_psiF(psi_y, F_y, u_x, u_y, u_z, 0.5 * curr_dt)
+        RK2_grid_graduT_psiF(psi_z, F_z, u_x, u_y, u_z, 0.5 * curr_dt)
 
         copy_to(w_x, tmp_w_x)
         copy_to(w_y, tmp_w_y)
