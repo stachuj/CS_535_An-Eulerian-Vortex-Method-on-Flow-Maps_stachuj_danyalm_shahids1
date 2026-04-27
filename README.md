@@ -30,6 +30,14 @@ The improved version enhances the simulation stability and the vorticity preserv
 
 Hyperparameters can be tuned by changing the values in the file `hyperparameters.py`.
 
+
+Our modified version is run with:
+
+```bash
+python run_cs535.py
+```
+This version has slightly better run time than run_improved, as it relies on RK2 function rather than RK4, along with small changes to buffer copies.
+
 ## Visualization
 The results will be stored in `logs/[exp_name]/vtks`. We recommend using ParaView to load these `.vti` files as a sequence and visualize them by selecting **Volume** in the Representation drop-down menu.
 
