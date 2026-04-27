@@ -382,6 +382,8 @@ def main():
         copy_to(err_w_y, w_y)
         copy_to(err_w_z, w_z)
 
+        #v3 and v4 -- second solve every other step
+        #if(i % 2 == 0):
         solver_w2v.Poisson_w2v(u_x, u_y, u_z, w_x, w_y, w_z)
         apply_bc_w(u_x, u_y, u_z, w_x, w_y, w_z, boundary_mask, boundary_vel, inv_dx)
 

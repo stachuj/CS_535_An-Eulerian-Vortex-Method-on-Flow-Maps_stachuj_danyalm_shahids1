@@ -28,9 +28,8 @@ python run_improved.py
 
 The improved version enhances the simulation stability and the vorticity preservation ability, e.g., it leads to one more leap in 3D leapfrog.
 
-Hyperparameters can be tuned by changing the values in the file `hyperparameters.py`.
-
-
+Hyperparameters can be tuned by changing the values in the file `hyperparameters.py`.  
+  
 Our modified version is run with:
 
 ```bash
