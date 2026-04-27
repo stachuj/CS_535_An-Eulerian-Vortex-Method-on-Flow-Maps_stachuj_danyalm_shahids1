@@ -192,19 +192,6 @@ def RK2_grid_graduT_psiF(
         # second
         u2, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x1, dx)
         dT_x_dt2 = T_x1 @ grad_u_at_psi  # time derivative of T
-        # prepare third
-        #psi_x2 = psi_x[I] - 0.5 * dt * u2  # advance 0.5 again
-        #T_x2 = T_x[I] + 0.5 * dt * dT_x_dt2
-        # third
-        #u3, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x2, dx)
-        #dT_x_dt3 = T_x2 @ grad_u_at_psi # time derivative of T
-        # prepare fourth
-        #psi_x3 = psi_x[I] - 1.0 * dt * u3
-        #T_x3 = T_x[I] + 1.0 * dt * dT_x_dt3  # advance 1.0
-        # fourth
-        #u4, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x3, dx)
-        #dT_x_dt4 = T_x3 @ grad_u_at_psi  # time derivative of T
-        # final advance
         psi_x[I] = psi_x[I] - dt * (u2)
         T_x[I] = T_x[I] + dt * (
             dT_x_dt2
@@ -232,19 +219,6 @@ def RK2_grid_graduT_phiT(
         # second
         u2, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x1, dx)
         dT_x_dt2 = T_x1 @ grad_u_at_psi  # time derivative of T
-        # prepare third
-        #psi_x2 = psi_x[I] + 0.5 * dt * u2  # advance 0.5 again
-        #T_x2 = T_x[I] - 0.5 * dt * dT_x_dt2
-        # third
-        #u3, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x2, dx)
-        #dT_x_dt3 = T_x2 @ grad_u_at_psi # time derivative of Tp
-        # prepare fourth
-        #psi_x3 = psi_x[I] + 1.0 * dt * u3
-        #T_x3 = T_x[I] - 1.0 * dt * dT_x_dt3  # advance 1.0
-        # fourth
-        #u4, grad_u_at_psi = interp_u_MAC_grad(u_x0, u_y0, u_z0, psi_x3, dx)
-        #dT_x_dt4 = T_x3 @ grad_u_at_psi  # time derivative of T
-        # final advance
         psi_x[I] = psi_x[I] + dt * (u2)
         T_x[I] = T_x[I] - dt * (
             dT_x_dt2
